@@ -4,7 +4,7 @@ The PyScan2P software package is a minimalist version of the Python-based micros
 Please let us know if you have any suggestions or ideas on how to improve our software. Visit us at our [lab website](https://www.neurobiology-konstanz.com/bahl).  
 Armin & Katja. 
 
-## Setting up the right Python enverionment
+## Setting up the right Python environment
 Install the latest anaconda version for your operating system (https://www.anaconda.com/products/individual).  
 Open the anaconda command prompt. 
 
