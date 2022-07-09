@@ -7,6 +7,7 @@ from scipy.ndimage import gaussian_filter1d
 from numba import jit
 import time
 from tifffile import imsave
+from pathlib import Path
 
 @jit(nopython=True)
 def do_binning(img_channel0, img_channel1, pmt_data_channel0, pmt_data_channel1, x, y, bin_size):
@@ -31,6 +32,8 @@ class ScanningModule(Process):
             self.dev_name_pmt_control = f"dev2"
         else:
             return
+
+        self.expected_pmt_signal_range = 5
 
     def start_scanning(self):
 
@@ -75,8 +78,8 @@ class ScanningModule(Process):
         self.Vx = (self.x - np.mean(self.x)) * self.pixel_to_galvo_factor
         self.Vy = (self.y - np.mean(self.y)) * self.pixel_to_galvo_factor
 
-        if np.min(self.Vx) < -4.9 or np.min(self.Vz) < -4.9 or np.min(self.Vx) < -4.9 or  np.min(self.Vz) < -4.9:
-            print("Voltage range too large")
+        if np.min(self.Vx) < -4.9 or np.min(self.Vy) < -4.9 or np.max(self.Vx) > 4.9 or np.max(self.Vy) > 4.9:
+            print("Voltage range too large.")
             self.shared.currently_scanning.value = 0
 
         # Round the pixel locations to be able to later use it as indices to place in the image
@@ -99,30 +102,24 @@ class ScanningModule(Process):
                            self.shared.scanning_configuration_pmt_gain_red.value)
 
         # Galvo output
-        DAQmxCreateTask("AO", byref(self.galvo_output_handle))
-        DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.dev_name_scanning_control}/ao0:1", "AO", -5.0, 5.0, DAQmx_Val_Volts, "")
         DAQmxCfgSampClkTiming(self.galvo_output_handle, "", float64(self.output_rate), DAQmx_Val_Rising,
                               DAQmx_Val_ContSamps, int(len(self.x)))
         DAQmxWriteAnalogF64(self.galvo_output_handle, int(len(self.x)), 0, 10.0, DAQmx_Val_GroupByChannel, np.r_[self.Vx, self.Vy],
                             byref(self.written), None)
 
         # Start Pmt input when the scanner starts
-        DAQmxCreateTask("AI", byref(self.pmt_input_handle))
-        DAQmxCreateAIVoltageChan(self.pmt_input_handle, f"{self.dev_name_scanning_control}/ai0:1", "AI", DAQmx_Val_Cfg_Default, float64(-self.shared.galvo_scanning_expected_pmt_signal_range.value),
-                                 float64(self.shared.galvo_scanning_expected_pmt_signal_range.value), DAQmx_Val_Volts, None)
-
         DAQmxCfgSampClkTiming(self.pmt_input_handle, "", float64(self.input_rate), DAQmx_Val_Rising, DAQmx_Val_ContSamps,
                               int(len(self.x)*self.bin_size))
         DAQmxSetAIDataXferMech(self.pmt_input_handle, f"{self.dev_name_scanning_control}/ai0:1", DAQmx_Val_DMA)  # imporoves buffering problems
         DAQmxCfgDigEdgeStartTrig(self.pmt_input_handle, "ao/StartTrigger", DAQmx_Val_Rising)
 
-        # Open the shutter when the scanner starts
-        data = np.ones(1).astype(np.uint8)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 0, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
-        DAQmxCfgDigEdgeStartTrig(self.shutter_handle, "ao/StartTrigger", DAQmx_Val_Rising)
-
-        # Start everything
+        # Start the scanning and the synchronized pmt acquisition
+        DAQmxStartTask(self.pmt_input_handle) # This one waits for the trigger from the galvos
         DAQmxStartTask(self.galvo_output_handle)
+
+        # Open the shutter after the scanner starts
+        data = np.ones(1).astype(np.uint8)
+        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
 
         self.shared.currently_scanning.value = 1
 
@@ -146,28 +143,23 @@ class ScanningModule(Process):
 
     def stop_scanning(self):
 
-        if self.shared.currently_scanning.value == 0:
-            return
-
         # Close the shutter
-        data = np.zeros(1, dtype = np.uint8)
+        data = np.zeros(1, dtype=np.uint8)
         DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
 
         # Stop the pmt input motion and galvos
         DAQmxStopTask(self.pmt_input_handle)
         DAQmxStopTask(self.galvo_output_handle)
 
-        DAQmxClearTask(self.pmt_input_handle)
-        DAQmxClearTask(self.galvo_output_handle)
+        #DAQmxClearTask(self.pmt_input_handle)
+        #DAQmxClearTask(self.galvo_output_handle)
 
         # Zero the galvos
         data = np.zeros(2, dtype=np.float64)
-        DAQmxCreateTask("AO", byref(self.galvo_output_handle))
-        DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.dev_name_scanning_control}/ao0:1", "AO", -5.0, 5.0, DAQmx_Val_Volts, "")
         DAQmxWriteAnalogF64(self.galvo_output_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
-
         DAQmxStopTask(self.galvo_output_handle)
-        DAQmxClearTask(self.galvo_output_handle)
+
+        #DAQmxClearTask(self.galvo_output_handle)
 
         # Turn off the pmts
         self.set_pmt_gains(0, 0)
@@ -199,36 +191,38 @@ class ScanningModule(Process):
 
     def run(self):
 
-        self.shared_image_green = np.ctypeslib.as_array(self.shared.image_green)
-        self.shared_image_red = np.ctypeslib.as_array(self.shared.image_red)
+        self.shared_image_green_LP = np.ctypeslib.as_array(self.shared.image_green_LP)
+        self.shared_image_red_LP = np.ctypeslib.as_array(self.shared.image_red_LP)
 
         self.read = int32(0)
         self.written = int32()
 
+        # Prepare all the NI channels
         self.shutter_handle = TaskHandle()
         self.pmt_gain_green_control_handle = TaskHandle()
         self.pmt_gain_red_control_handle = TaskHandle()
         self.galvo_output_handle = TaskHandle()
         self.pmt_input_handle = TaskHandle()
 
-        # Close the uniblitz shutter when we start
-        data = np.zeros(1, dtype=np.uint8)
-
-
-
         DAQmxCreateTask("Shutter", byref(self.shutter_handle))
-        DAQmxCreateDOChan(self.shutter_handle, f"{self.dev_name_scanning_control}/port0/line0", "", DAQmx_Val_ChanForAllLines)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
-
-
         DAQmxCreateTask("Pmt gain green", byref(self.pmt_gain_green_control_handle))
         DAQmxCreateTask("Pmt gain red", byref(self.pmt_gain_red_control_handle))
+        DAQmxCreateTask("AO", byref(self.galvo_output_handle))
+        DAQmxCreateTask("AI", byref(self.pmt_input_handle))
+
+        DAQmxCreateDOChan(self.shutter_handle, f"{self.dev_name_scanning_control}/port0/line0", "", DAQmx_Val_ChanForAllLines)
+        DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.dev_name_scanning_control}/ao0:1", "AO",
+                                 float64(-5.0),
+                                 float64(5.0), DAQmx_Val_Volts, "")
+        DAQmxCreateAIVoltageChan(self.pmt_input_handle, f"{self.dev_name_scanning_control}/ai0:1", "AI", DAQmx_Val_Cfg_Default,
+                                 float64(-self.expected_pmt_signal_range),
+                                 float64(self.expected_pmt_signal_range), DAQmx_Val_Volts, None)
 
         DAQmxCreateAOVoltageChan(self.pmt_gain_green_control_handle, f"{self.dev_name_pmt_control}/ao0", "AO", 0, 5.0, DAQmx_Val_Volts, "")
         DAQmxCreateAOVoltageChan(self.pmt_gain_red_control_handle, f"{self.dev_name_pmt_control}/ao1", "AO", 0, 5.0, DAQmx_Val_Volts, "")
 
-        # Initially, turn both pmts off
-        self.set_pmt_gains(0, 0)
+        # Set the galvos to zero, turn off the PMTs, and close the shutter
+        self.stop_scanning()
 
         while self.shared.running.value == 1:
 
@@ -238,7 +232,12 @@ class ScanningModule(Process):
                 # Start continuous scanning
                 self.start_scanning()
 
+                # To measure time per frame
+                t0 = time.time()
                 while True:
+
+                    self.shared.current_time_per_frame.value = time.time() - t0
+                    t0 = time.time()
 
                     # Adjust the pmt gain if desired, also during the scanning
                     if self.shared.scanning_configuration_pmt_gain_green_update_requested.value == 1:
@@ -259,12 +258,12 @@ class ScanningModule(Process):
                         break
 
                     # Read one full galvo image for both channals
-                    DAQmxReadAnalogF64(self.pmt_input_handle, int(len(self.x)*self.bin_size), 30.0, DAQmx_Val_GroupByChannel,
-                                       self.pmt_buffer_data, int(2 * len(self.x)*self.bin_size), byref(self.read), None)
+                    DAQmxReadAnalogF64(self.pmt_input_handle, len(self.x)*self.bin_size, 30.0, DAQmx_Val_GroupByChannel,
+                                       self.pmt_buffer_data, 2 * len(self.x)*self.bin_size, byref(self.read), None)
 
                     # Do the binning
                     image_green, image_red = self.get_images(self.pmt_buffer_data[:len(self.x) * self.bin_size],
-                                                             self.pmt_buffer_data[:len(self.x) * self.bin_size])
+                                                             self.pmt_buffer_data[len(self.x) * self.bin_size:])
 
                     # Low-pass filter the images
                     if self.image_green_LP is None or \
@@ -277,8 +276,8 @@ class ScanningModule(Process):
                         self.image_red_LP = (1 - alpha) * self.image_red_LP + alpha * image_red
 
                     # Send the LP images out for display
-                    self.shared_image_green[:self.x_pixels * self.y_pixels] = self.image_green_LP.flatten()
-                    self.shared_image_red[:self.x_pixels * self.y_pixels] = self.image_red_LP.flatten()
+                    self.shared_image_green_LP[:self.x_pixels * self.y_pixels] = self.image_green_LP.flatten()
+                    self.shared_image_red_LP[:self.x_pixels * self.y_pixels] = self.image_red_LP.flatten()
 
                     self.shared.image_green_LP_min.value = np.min(self.image_green_LP)
                     self.shared.image_green_LP_max.value = np.max(self.image_green_LP)
@@ -315,8 +314,8 @@ class ScanningModule(Process):
 
                 self.shared.experiment_flow_control_currently_storing_imaging_data.value = 1
 
-                root_path = bytearray(self.shared.experiment_flow_control_root_path[:self.shared.experiment_flow_control_root_path_l.value]).decode()
-
+                root_path = Path(bytearray(self.shared.experiment_flow_control_root_path[:self.shared.experiment_flow_control_root_path_l.value]).decode())
+                print("Storing...")
                 if self.shared.experiment_configuration_store_green_channel.value == 1 or \
                         self.shared.experiment_configuration_store_red_channel.value == 1:
 
@@ -337,5 +336,5 @@ class ScanningModule(Process):
 
                 self.shared.experiment_flow_control_currently_storing_imaging_data.value = 0
                 self.shared.experiment_flow_control_store_imaging_data_completed.value = 1
-
+                print("done")
             time.sleep(0.01)

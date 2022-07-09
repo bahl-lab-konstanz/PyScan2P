@@ -9,12 +9,8 @@ from modules.experiment_flow_control_module import ExperimentFlowControlModule
 
 class Shared():
     def __init__(self):
-
-        self.image_green = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048) # for now, set 2048 as the max image siye
-        self.image_red = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
-
-        self.image_green_processed = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
-        self.image_red_processed = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
+        self.image_green_LP = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
+        self.image_red_LP = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
 
         # Gui control
         self.raster_scanning_start_requested = Value('b', 0)
@@ -69,6 +65,8 @@ class Shared():
 
         # Fish information
         self.fish_configuration_ID = Value('i', 0)
+        self.fish_configuration_suffix = sharedctypes.RawArray(ctypes.c_ubyte, 2000)
+        self.fish_configuration_suffix_l = Value('i', 0)
         self.fish_configuration_genotype = sharedctypes.RawArray(ctypes.c_ubyte, 2000)
         self.fish_configuration_genotype_l = Value('i', 0)
         self.fish_configuration_age = sharedctypes.RawArray(ctypes.c_ubyte, 2000)
@@ -103,6 +101,7 @@ class Shared():
 
         self.start_scanning_requested = Value('b', 0)
         self.stop_scanning_requested = Value('b', 0)
+        self.current_time_per_frame = Value('d', 0)
         self.currently_scanning = Value('b', 0)
 
         self.pmt_data_rolling_shift = Value('i', 34)
@@ -121,7 +120,6 @@ class Shared():
         self.galvo_scanning_resolutiony = Value('i', 800)
         self.galvo_scanning_turnaround_pixels = Value('i', 30)
         self.galvo_scanning_pixel_galvo_factor = Value('d', 0.005)
-        self.galvo_scanning_expected_pmt_signal_range = Value('d', 5)
 
         self.scanning_configuration_pmt_gain_green_update_requested =  Value('b', 0)
         self.scanning_configuration_pmt_gain_green = Value('d', 0)

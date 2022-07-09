@@ -8,7 +8,7 @@ if __name__ == "__main__":
     shared = Shared()
     shared.start_threads()
 
-    from PyQt6 import QtCore, QtGui, uic, QtWidgets
+    from PyQt6 import QtCore, uic, QtWidgets
 
     import os
     import numpy as np
@@ -25,7 +25,7 @@ if __name__ == "__main__":
             pg.setConfigOption('background', pg.mkColor(20 / 255.))
             pg.setConfigOption('foreground', 'w')
 
-            uic.loadUi(os.path.join(path, "PyZebra2P_dialog.ui"), self)
+            uic.loadUi(os.path.join(path, "PyScan2P_dialog.ui"), self)
 
             # scale all the widgets (4k, windows scaling problem)
             fontscale = 1#1  # 2.2
@@ -97,10 +97,9 @@ if __name__ == "__main__":
             self.spinBox_raster_scanning_turn_around_pixels.valueChanged.connect(self.spinBox_raster_scanning_turn_around_pixels_valueChanged)
             self.doubleSpinBox_scanning_configuration_pixel_to_galvo_factor.valueChanged.connect(self.doubleSpinBox_scanning_configuration_pixel_to_galvo_factor_valueChanged)
 
-            self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.valueChanged.connect(self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range_valueChanged)
-
             # Fish configuration
             self.spinBox_fish_configuration_ID.valueChanged.connect(self.spinBox_fish_configuration_ID_valueChanged)
+            self.lineEdit_fish_configuration_suffix.textChanged.connect(self.lineEdit_fish_configuration_suffix_textChanged)
             self.lineEdit_fish_configuration_genotype.textChanged.connect(self.lineEdit_fish_configuration_genotype_textChanged)
             self.lineEdit_fish_configuration_age.textChanged.connect(self.lineEdit_fish_configuration_age_textChanged)
             self.lineEdit_fish_configuration_comments.textChanged.connect(self.lineEdit_fish_configuration_comments_textChanged)
@@ -223,13 +222,11 @@ if __name__ == "__main__":
                  self.shared.pmt_data_rolling_shift.value,
                  self.shared.scanning_configuration_pmt_gain_green.value,
                  self.shared.scanning_configuration_pmt_gain_red.value,
-                 self.shared.galvo_scanning_expected_pmt_signal_range.value,
                  self.shared.scanning_configuration_display_lowpass_filter_constant.value,
                  self.shared.green_channel_slider_low.value,
                  self.shared.green_channel_slider_high.value,
                  self.shared.red_channel_slider_low.value,
                  self.shared.red_channel_slider_high.value,
-                 self.shared.scanning_configuration_only_scan_test_patterns.value,
                  self.shared.scale_green_channel.value,
                  self.shared.min_green_channel.value,
                  self.shared.scale_red_channel.value,
@@ -247,6 +244,9 @@ if __name__ == "__main__":
 
             user_data_folder = Path(user_data_dir("PyScan2P", "arminbahl"))
 
+            if not user_data_folder.exists():
+                user_data_folder.mkdir(parents=True)
+
             try:
                 volume_scanning_filepath = bytearray(self.shared.experiment_configuration_storage_root_path[:self.shared.experiment_configuration_storage_root_path_l.value]).decode()
 
@@ -262,13 +262,11 @@ if __name__ == "__main__":
                  self.shared.pmt_data_rolling_shift.value,
                  self.shared.scanning_configuration_pmt_gain_green.value,
                  self.shared.scanning_configuration_pmt_gain_red.value,
-                 self.shared.galvo_scanning_expected_pmt_signal_range.value,
                  self.shared.scanning_configuration_display_lowpass_filter_constant.value,
                  self.shared.green_channel_slider_low.value,
                  self.shared.green_channel_slider_high.value,
                  self.shared.red_channel_slider_low.value,
                  self.shared.red_channel_slider_high.value,
-                 self.shared.scanning_configuration_only_scan_test_patterns.value,
                  self.shared.scale_green_channel.value,
                  self.shared.min_green_channel.value,
                  self.shared.scale_red_channel.value,
@@ -280,6 +278,12 @@ if __name__ == "__main__":
 
         def spinBox_fish_configuration_ID_valueChanged(self):
             self.shared.fish_configuration_ID.value = self.spinBox_fish_configuration_ID.value()
+
+        def lineEdit_fish_configuration_suffix_textChanged(self):
+            fish_configuration_suffix = self.lineEdit_fish_configuration_suffix.text().encode()
+
+            self.shared.fish_configuration_suffix[:len(fish_configuration_suffix)] = fish_configuration_suffix
+            self.shared.fish_configuration_suffix_l.value = len(fish_configuration_suffix)
 
         def lineEdit_fish_configuration_genotype_textChanged(self):
             fish_configuration_genotype = self.lineEdit_fish_configuration_genotype.text().encode()
@@ -343,9 +347,6 @@ if __name__ == "__main__":
 
         def doubleSpinBox_scanning_configuration_pixel_to_galvo_factor_valueChanged(self):
             self.shared.galvo_scanning_pixel_galvo_factor.value = self.doubleSpinBox_scanning_configuration_pixel_to_galvo_factor.value()
-
-        def doubleSpinBox_galvo_scanning_expected_pmt_signal_range_valueChanged(self):
-            self.shared.galvo_scanning_expected_pmt_signal_range.value = self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.value()
 
         def lineEdit_volume_scanning_filepath_textChanged(self):
             filepath = self.lineEdit_volume_scanning_filepath.text().encode()
@@ -417,7 +418,6 @@ if __name__ == "__main__":
 
             self.spinBox_raster_scanning_turn_around_pixels.setValue(self.shared.galvo_scanning_turnaround_pixels.value)
 
-            self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.setValue(self.shared.galvo_scanning_expected_pmt_signal_range.value)
             self.doubleSpinBox_scanning_configuration_pixel_to_galvo_factor.setValue(self.shared.galvo_scanning_pixel_galvo_factor.value)
 
             self.spinBox_pmt_data_rolling_shift.setValue(self.shared.pmt_data_rolling_shift.value)
@@ -486,6 +486,13 @@ if __name__ == "__main__":
             self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
 
         def update_gui(self):
+
+            # Update the voltage range display for the scan pattern
+            width = self.shared.galvo_scanning_resolutionx.value + self.shared.galvo_scanning_turnaround_pixels.value * 2
+            height = self.shared.galvo_scanning_resolutionx.value
+            min_max_Vx = width / 2 * self.shared.galvo_scanning_pixel_galvo_factor.value
+            min_max_Vy = height / 2 * self.shared.galvo_scanning_pixel_galvo_factor.value
+            self.label_voltage_range.setText(f"Galvo range:\n X:  ±{min_max_Vx:.2f} V\n Y:  ±{min_max_Vy:.2f} V")
 
             # allow some gui control from other processes (running protocol)
             if self.shared.raster_scanning_start_requested.value == 1:
@@ -627,7 +634,6 @@ if __name__ == "__main__":
                 self.spinBox_galvo_scanning_resolutionx.setEnabled(False)
                 self.spinBox_galvo_scanning_resolutiony.setEnabled(False)
                 self.spinBox_raster_scanning_turn_around_pixels.setEnabled(False)
-                self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.setEnabled(False)
 
                 self.checkBox_experiment_store_green_channel.setEnabled(True)
                 self.checkBox_experiment_store_red_channel.setEnabled(True)
@@ -656,7 +662,6 @@ if __name__ == "__main__":
                 self.spinBox_galvo_scanning_resolutionx.setEnabled(False)
                 self.spinBox_galvo_scanning_resolutiony.setEnabled(False)
                 self.spinBox_raster_scanning_turn_around_pixels.setEnabled(False)
-                self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.setEnabled(False)
 
                 self.checkBox_experiment_store_green_channel.setEnabled(False)
                 self.checkBox_experiment_store_red_channel.setEnabled(False)
@@ -685,7 +690,6 @@ if __name__ == "__main__":
                 self.spinBox_galvo_scanning_resolutionx.setEnabled(True)
                 self.spinBox_galvo_scanning_resolutiony.setEnabled(True)
                 self.spinBox_raster_scanning_turn_around_pixels.setEnabled(True)
-                self.doubleSpinBox_galvo_scanning_expected_pmt_signal_range.setEnabled(True)
 
                 # but allow the experiment elements still to be modified
                 self.checkBox_experiment_store_green_channel.setEnabled(True)
@@ -698,10 +702,7 @@ if __name__ == "__main__":
 
             info += "\nCurrent time in trial:\t{:.02f} s".format(self.shared.experimemt_flow_control_current_time_in_trial.value)
 
-            info += "\n\nCurrently storing data:\t{}".format(self.shared.experiment_flow_control_currently_storing_head_data.value == 1 or
-                                                            self.shared.experiment_flow_control_currently_storing_tail_data.value == 1 or
-                                                            self.shared.experiment_flow_control_currently_storing_stimulus_data.value == 1 or
-                                                            self.shared.experiment_flow_control_currently_storing_imaging_data.value == 1)
+            info += "\n\nCurrently storing data:\t{}".format(self.shared.experiment_flow_control_currently_storing_imaging_data.value == 1)
 
             self.label_volume_scanning_info.setText(info)
             self.progressBar_experiment_percentage_done.setValue(self.shared.experiment_flow_control_percentage_done.value)
@@ -716,19 +717,21 @@ if __name__ == "__main__":
                 # display
                 self.pyqtgraph_green_pmt_image_item.setImage(image_green_LP, autoLevels=False, levels=(self.shared.green_channel_slider_low.value, self.shared.green_channel_slider_high.value))
 
-                # update the histogram
+                # Update the histogram
                 hist, bin_edges = np.histogram(image_green_LP.flatten(), bins=1000, range=(10000, 14096), density=True)
-                self.green_image_histogram_curve.setData(bin_edges[1:], hist * 100)
-                self.green_image_slider_low_curve.setData([self.shared.green_channel_slider_low.value, self.shared.green_channel_slider_low.value],
-                                                          [0, np.nanmax(hist) * 100])
-                self.green_image_slider_high_curve.setData([self.shared.green_channel_slider_high.value, self.shared.green_channel_slider_high.value],
-                                                           [0, np.nanmax(hist) * 100])
+                if not np.isnan(hist).any():
+                    self.green_image_histogram_curve.setData(bin_edges[1:], hist * 100)
+                    self.green_image_slider_low_curve.setData([self.shared.green_channel_slider_low.value, self.shared.green_channel_slider_low.value],
+                                                              [0, np.nanmax(hist) * 100])
+                    self.green_image_slider_high_curve.setData([self.shared.green_channel_slider_high.value, self.shared.green_channel_slider_high.value],
+                                                               [0, np.nanmax(hist) * 100])
 
                 image_min = self.shared.image_green_LP_min.value
                 image_max = self.shared.image_green_LP_max.value
                 image_mean = self.shared.image_green_LP_mean.value
+                time_per_frame = self.shared.current_time_per_frame.value
 
-                info = f"Image range:\tMinimum ({image_min:.1f}), Maximum ({image_max:.1f}), Mean ({image_mean:.1f})"
+                info = f"Time per frame: {time_per_frame:.1f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
                 self.label_info_raw_signal_range_green_channel.setText(info)
 
             ####################
@@ -742,19 +745,21 @@ if __name__ == "__main__":
                 # display
                 self.pyqtgraph_red_pmt_image_item.setImage(image_red_LP, autoLevels=False, levels=(self.shared.red_channel_slider_low.value, self.shared.red_channel_slider_high.value))
 
-                # update the histogram
+                # Update the histogram
                 hist, bin_edges = np.histogram(image_red_LP.flatten(), bins=1000, range=(10000, 14096), density=True)
-                self.red_image_histogram_curve.setData(bin_edges[1:], hist * 100)
-                self.red_image_slider_low_curve.setData([self.shared.red_channel_slider_low.value, self.shared.red_channel_slider_low.value],
-                                                          [0, np.nanmax(hist) * 100])
-                self.red_image_slider_high_curve.setData([self.shared.red_channel_slider_high.value, self.shared.red_channel_slider_high.value],
-                                                           [0, np.nanmax(hist) * 100])
+                if not np.isnan(hist).any():
+                    self.red_image_histogram_curve.setData(bin_edges[1:], hist * 100)
+                    self.red_image_slider_low_curve.setData([self.shared.red_channel_slider_low.value, self.shared.red_channel_slider_low.value],
+                                                              [0, np.nanmax(hist) * 100])
+                    self.red_image_slider_high_curve.setData([self.shared.red_channel_slider_high.value, self.shared.red_channel_slider_high.value],
+                                                               [0, np.nanmax(hist) * 100])
 
                 image_min = self.shared.image_red_LP_min.value
                 image_max = self.shared.image_red_LP_max.value
                 image_mean = self.shared.image_red_LP_mean.value
+                time_per_frame = self.shared.current_time_per_frame.value
 
-                info = f"Image range:\tMinimum ({image_min:.1f}), Maximum ({image_max:.1f}), Mean ({image_mean:.1f})"
+                info = f"Time per frame: {time_per_frame:.1f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
                 self.label_info_raw_signal_range_red_channel.setText(info)
 
             ### Update dual image

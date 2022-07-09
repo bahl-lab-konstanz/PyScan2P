@@ -1,6 +1,5 @@
 from multiprocessing import Process
 import time
-import os
 from pathlib import Path
 
 class ExperimentFlowControlModule(Process):
@@ -22,10 +21,10 @@ class ExperimentFlowControlModule(Process):
                 root_path = Path(bytearray(self.shared.experiment_configuration_storage_root_path[:self.shared.experiment_configuration_storage_root_path_l.value]).decode())
                 root_path.mkdir(exist_ok=True)
 
-                suffix = "test" # TODO get this from the GUI
                 folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
                 folder_name += f"_fish{self.shared.fish_configuration_ID.value:03d}"
 
+                suffix = bytearray(self.shared.fish_configuration_suffix[:self.shared.fish_configuration_suffix_l.value]).decode()
                 if len(suffix) > 0:
                     folder_name += f"_{suffix}"
 
@@ -37,26 +36,24 @@ class ExperimentFlowControlModule(Process):
                     print("Experiment folder", root_path, "already exists. Stopping....")
                     continue
 
-                self.shared.experiment_flow_control_root_path[:len(root_path)] = root_path.encode()
-                self.shared.experiment_flow_control_root_path_l.value = len(root_path)
+                encoded_string = str(root_path).encode()
+                self.shared.experiment_flow_control_root_path[:len(encoded_string)] = encoded_string
+                self.shared.experiment_flow_control_root_path_l.value = len(encoded_string)
 
                 ########################
                 # Save general experiment information
                 infos = dict()
                 infos["Date and time"] = time.strftime("%Y-%m-%d_%H-%M-%S")
                 infos["fish_configuration_ID"] = self.shared.fish_configuration_ID.value
+                infos["fish_configuration_suffix"] = bytearray(self.shared.fish_configuration_suffix[:self.shared.fish_configuration_suffix_l.value]).decode()
                 infos["fish_configuration_genotype"] = bytearray(self.shared.fish_configuration_genotype[:self.shared.fish_configuration_genotype_l.value]).decode()
-
                 infos["fish_configuration_age"] = bytearray(self.shared.fish_configuration_age[:self.shared.fish_configuration_age_l.value]).decode()
                 infos["fish_configuration_comments"] = bytearray(self.shared.fish_configuration_comments[:self.shared.fish_configuration_comments_l.value]).decode()
                 infos["current_lambda_half_plate_orientation"] = self.shared.current_lambda_half_plate_orientation.value
                 infos["current_mai_tai_info_wavelength"] = self.shared.current_mai_tai_info_wavelength.value
-                infos["stimulus_configuration_stimulus_path"] = bytearray(self.shared.stimulus_configuration_stimulus_path[:self.shared.stimulus_configuration_stimulus_path_l.value]).decode()
-                infos["stimulus_information_number_of_stimuli"] = self.shared.stimulus_information_number_of_stimuli.value
-                infos["stimulus_information_time_per_stimulus"] = self.shared.stimulus_information_time_per_stimulus.value
                 infos["galvo_scanning_AIrate"] = self.shared.galvo_scanning_AIrate.value
                 infos["galvo_scanning_AOrate"] = self.shared.galvo_scanning_AOrate.value
-                infos["galvo_scanning_expected_pmt_signal_range"] = self.shared.galvo_scanning_expected_pmt_signal_range.value
+                infos["galvo_scanning_pixel_galvo_factor"] = self.shared.galvo_scanning_pixel_galvo_factor.value
                 infos["pmt_data_rolling_shift"] = self.shared.pmt_data_rolling_shift.value
                 infos["scanning_configuration_pmt_gain_green"] = self.shared.scanning_configuration_pmt_gain_green.value
                 infos["scanning_configuration_pmt_gain_red"] = self.shared.scanning_configuration_pmt_gain_red.value
@@ -74,7 +71,7 @@ class ExperimentFlowControlModule(Process):
                 infos["store_red_channel"] = self.shared.experiment_configuration_store_red_channel.value
 
                 # Also save all the attributes to a text file, for easier readings
-                fp = open(os.path.join(root_path, "experiment_information.txt"), "w")
+                fp = open(root_path / "experiment_information.txt", "w")
                 for key in infos.keys():
                     fp.write(f"{key}:\t" + str(infos[key]) + "\n")
 
@@ -108,22 +105,19 @@ class ExperimentFlowControlModule(Process):
 
                 # Stop all acquisitions
                 self.shared.experiment_flow_control_currently_acquire_imaging_data.value = 0
+                self.shared.stop_scanning_requested.value = 1
 
                 # Store the data
-                if self.shared.experiment_configuration_store_green_channel.value == 1 or \
-                        self.shared.experiment_configuration_store_red_channel.value == 1:
+                self.shared.experiment_flow_control_store_imaging_data_completed.value = 0
+                self.shared.experiment_flow_control_store_imaging_data_requested.value = 1
+                while self.shared.experiment_flow_control_store_imaging_data_completed.value == 0:
 
-                    self.shared.experiment_flow_control_store_imaging_data_completed.value = 0
-                    self.shared.experiment_flow_control_store_imaging_data_requested.value = 1
-                    while self.shared.experiment_flow_control_store_imaging_data_completed.value == 0:
-
-                        if self.shared.experiment_flow_control_stop_requested.value == 1:
-                            self.shared.experiment_flow_control_stop_requested.value = 0
-                            break
+                    if self.shared.experiment_flow_control_stop_requested.value == 1:
+                        self.shared.experiment_flow_control_stop_requested.value = 0
+                        break
 
                         time.sleep(0.05)
 
-                self.shared.stop_scanning_requested.value = 1
                 self.shared.experiment_flow_control_currently_running.value = 0
 
                 # Close the laser shutter after the experiment
