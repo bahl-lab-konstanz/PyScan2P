@@ -1,9 +1,6 @@
 from multiprocessing import Process
 import time
 import os
-import shutil
-import pickle
-import numpy as np
 from pathlib import Path
 
 class ExperimentFlowControlModule(Process):
@@ -25,8 +22,13 @@ class ExperimentFlowControlModule(Process):
                 root_path = Path(bytearray(self.shared.experiment_configuration_storage_root_path[:self.shared.experiment_configuration_storage_root_path_l.value]).decode())
                 root_path.mkdir(exist_ok=True)
 
+                suffix = "test" # TODO get this from the GUI
                 folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
                 folder_name += f"_fish{self.shared.fish_configuration_ID.value:03d}"
+
+                if len(suffix) > 0:
+                    folder_name += f"_{suffix}"
+
                 root_path = root_path / folder_name
 
                 try:
@@ -35,7 +37,6 @@ class ExperimentFlowControlModule(Process):
                     print("Experiment folder", root_path, "already exists. Stopping....")
                     continue
 
-                #
                 self.shared.experiment_flow_control_root_path[:len(root_path)] = root_path.encode()
                 self.shared.experiment_flow_control_root_path_l.value = len(root_path)
 
@@ -79,7 +80,6 @@ class ExperimentFlowControlModule(Process):
 
                 fp.close()
 
-
                 ####################
                 #### Everyhing prepared now, now go start the experiment
                 self.shared.start_scanning_requested.value = 1  # start the scanning, this now runs forever and will only be interupted during saving of stacks
@@ -87,23 +87,8 @@ class ExperimentFlowControlModule(Process):
                 experiment_start_time = time.time()
                 experiment_total_time = self.shared.experiment_configuration_trial_time.value
 
-                # Tell the scanning module to start image acquisiation
+                # Tell the scanning module to start image acquisition
                 self.shared.experimemt_flow_control_start_acquire_imaging_data_requested.value = 1
-
-                # Set the PMTs on and/or off
-                if self.shared.experiment_configuration_store_green_channel.value == 1:
-                    self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
-                    self.shared.green_pmt_turn_on_while_scanning.value = 1
-                else:
-                    self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
-                    self.shared.green_pmt_turn_on_while_scanning.value = 0
-
-                if self.shared.experiment_configuration_store_red_channel.value == 1:
-                    self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
-                    self.shared.red_pmt_turn_on_while_scanning.value = 1
-                else:
-                    self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
-                    self.shared.red_pmt_turn_on_while_scanning.value = 0
 
                 # Waiting loop to the end of the trial
                 trial_start_time = time.time()
@@ -138,7 +123,6 @@ class ExperimentFlowControlModule(Process):
 
                         time.sleep(0.05)
 
-                # at the end of the experiment (after all planes, and trials, stop everything)
                 self.shared.stop_scanning_requested.value = 1
                 self.shared.experiment_flow_control_currently_running.value = 0
 

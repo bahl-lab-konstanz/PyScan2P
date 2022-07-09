@@ -1,5 +1,3 @@
-
-
 if __name__ == "__main__":
 
     from shared import Shared
@@ -480,13 +478,12 @@ if __name__ == "__main__":
             self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
 
         def checkBox_green_pmt_turn_on_while_scanning_clicked(self):
-            self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
             self.shared.green_pmt_turn_on_while_scanning.value = 1 if self.checkBox_green_pmt_turn_on_while_scanning.isChecked() else 0
+            self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
 
         def checkBox_red_pmt_turn_on_while_scanning_clicked(self):
-            self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
             self.shared.red_pmt_turn_on_while_scanning.value = 1 if self.checkBox_red_pmt_turn_on_while_scanning.isChecked() else 0
-
+            self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
 
         def update_gui(self):
 

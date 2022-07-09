@@ -2,13 +2,8 @@ from multiprocessing import Process
 import numpy as np
 from PyDAQmx import *
 from ctypes import *
-import time
-import pickle
-import psutil, os
-import pathlib
-import h5py
 import socket
-from scipy.ndimage import gaussian_filter1d, convolve1d
+from scipy.ndimage import gaussian_filter1d
 from numba import jit
 import time
 from tifffile import imsave
@@ -38,8 +33,6 @@ class ScanningModule(Process):
             return
 
     def start_scanning(self):
-
-        written = int32()
 
         self.x_pixels = self.shared.galvo_scanning_resolutionx.value
         self.y_pixels = self.shared.galvo_scanning_resolutiony.value
@@ -82,6 +75,10 @@ class ScanningModule(Process):
         self.Vx = (self.x - np.mean(self.x)) * self.pixel_to_galvo_factor
         self.Vy = (self.y - np.mean(self.y)) * self.pixel_to_galvo_factor
 
+        if np.min(self.Vx) < -4.9 or np.min(self.Vz) < -4.9 or np.min(self.Vx) < -4.9 or  np.min(self.Vz) < -4.9:
+            print("Voltage range too large")
+            self.shared.currently_scanning.value = 0
+
         # Round the pixel locations to be able to later use it as indices to place in the image
         self.x = np.round(self.x).astype(np.uint16)
         self.y = np.round(self.y).astype(np.uint16)
@@ -97,13 +94,6 @@ class ScanningModule(Process):
         self.get_images(self.pmt_buffer_data[:len(self.x) * self.bin_size],
                         self.pmt_buffer_data[len(self.x) * self.bin_size:])
 
-        # import matplotlib
-        # matplotlib.use("QT5AGG")
-        # import pylab as pl
-        # pl.plot(self.Vx, self.Vy)
-        # pl.show()
-        # sdfsdf
-
         # Turn on the PMTs
         self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
                            self.shared.scanning_configuration_pmt_gain_red.value)
@@ -114,7 +104,7 @@ class ScanningModule(Process):
         DAQmxCfgSampClkTiming(self.galvo_output_handle, "", float64(self.output_rate), DAQmx_Val_Rising,
                               DAQmx_Val_ContSamps, int(len(self.x)))
         DAQmxWriteAnalogF64(self.galvo_output_handle, int(len(self.x)), 0, 10.0, DAQmx_Val_GroupByChannel, np.r_[self.Vx, self.Vy],
-                            byref(written), None)
+                            byref(self.written), None)
 
         # Start Pmt input when the scanner starts
         DAQmxCreateTask("AI", byref(self.pmt_input_handle))
@@ -128,7 +118,7 @@ class ScanningModule(Process):
 
         # Open the shutter when the scanner starts
         data = np.ones(1).astype(np.uint8)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 0, 10, DAQmx_Val_GroupByChannel, data, byref(written), None)
+        DAQmxWriteDigitalU8(self.shutter_handle, 1, 0, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
         DAQmxCfgDigEdgeStartTrig(self.shutter_handle, "ao/StartTrigger", DAQmx_Val_Rising)
 
         # Start everything
@@ -137,8 +127,6 @@ class ScanningModule(Process):
         self.shared.currently_scanning.value = 1
 
     def set_pmt_gains(self, pmt_gain_green, pmt_gain_red):
-
-        written = int32()
 
         # Only turn on PMT if it was selected to be on during scanning.
         if not self.shared.green_pmt_turn_on_while_scanning.value:
@@ -149,12 +137,12 @@ class ScanningModule(Process):
         data = np.array([pmt_gain_green], dtype=np.float64)
         DAQmxWriteAnalogF64(self.pmt_gain_green_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
                             data,
-                            byref(written), None)
+                            byref(self.written), None)
 
         data = np.array([pmt_gain_red], dtype=np.float64)
         DAQmxWriteAnalogF64(self.pmt_gain_red_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
                             data,
-                            byref(written), None)
+                            byref(self.written), None)
 
     def stop_scanning(self):
 
@@ -162,9 +150,8 @@ class ScanningModule(Process):
             return
 
         # Close the shutter
-        written = int32()
         data = np.zeros(1, dtype = np.uint8)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(written), None)
+        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
 
         # Stop the pmt input motion and galvos
         DAQmxStopTask(self.pmt_input_handle)
@@ -177,7 +164,7 @@ class ScanningModule(Process):
         data = np.zeros(2, dtype=np.float64)
         DAQmxCreateTask("AO", byref(self.galvo_output_handle))
         DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.dev_name_scanning_control}/ao0:1", "AO", -5.0, 5.0, DAQmx_Val_Volts, "")
-        DAQmxWriteAnalogF64(self.galvo_output_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel, data, byref(written), None)
+        DAQmxWriteAnalogF64(self.galvo_output_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
 
         DAQmxStopTask(self.galvo_output_handle)
         DAQmxClearTask(self.galvo_output_handle)
@@ -215,8 +202,8 @@ class ScanningModule(Process):
         self.shared_image_green = np.ctypeslib.as_array(self.shared.image_green)
         self.shared_image_red = np.ctypeslib.as_array(self.shared.image_red)
 
-        read = int32(0)
-        written = int32()
+        self.read = int32(0)
+        self.written = int32()
 
         self.shutter_handle = TaskHandle()
         self.pmt_gain_green_control_handle = TaskHandle()
@@ -231,7 +218,7 @@ class ScanningModule(Process):
 
         DAQmxCreateTask("Shutter", byref(self.shutter_handle))
         DAQmxCreateDOChan(self.shutter_handle, f"{self.dev_name_scanning_control}/port0/line0", "", DAQmx_Val_ChanForAllLines)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(written), None)
+        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
 
 
         DAQmxCreateTask("Pmt gain green", byref(self.pmt_gain_green_control_handle))
@@ -273,7 +260,7 @@ class ScanningModule(Process):
 
                     # Read one full galvo image for both channals
                     DAQmxReadAnalogF64(self.pmt_input_handle, int(len(self.x)*self.bin_size), 30.0, DAQmx_Val_GroupByChannel,
-                                       self.pmt_buffer_data, int(2 * len(self.x)*self.bin_size), byref(read), None)
+                                       self.pmt_buffer_data, int(2 * len(self.x)*self.bin_size), byref(self.read), None)
 
                     # Do the binning
                     image_green, image_red = self.get_images(self.pmt_buffer_data[:len(self.x) * self.bin_size],

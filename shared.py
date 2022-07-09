@@ -112,7 +112,8 @@ class Shared():
         self.scale_red_channel = Value('i', 20000)
         self.min_red_channel = Value('i', 10000)
 
-        self.galvo_scanning_AIrate = Value('i', 3571000)  # NI pci 6115 specific 10 Mhz, pci 6110 has 5mz,  6374 3.571 Mhz
+        # NI pci 6115 specific 10 Mhz, pci 6110 has 5mz,  6374 3.571 Mhz
+        self.galvo_scanning_AIrate = Value('i', 3571000)
         self.galvo_scanning_AOrate = Value('i', 500000)
         self.galvo_scanning_AOrate_raster_scanning = Value('i', 500000)
         self.galvo_scanning_AOrate_regional_scanning = Value('i', 500000)

@@ -2,8 +2,7 @@ import ftd2xx
 from ftd2xx.defines import *
 import struct as st
 import time
-from multiprocessing import Process, Value, Array, Queue, sharedctypes
-import numpy as np
+from multiprocessing import Process
 
 # see https://github.com/freespace/pyAPT/blob/master/pyAPT/controller.py
 # http://www.thorlabs.com/Software/Motion%20Control/APT_Communications_Protocol_Rev_18.pdf
