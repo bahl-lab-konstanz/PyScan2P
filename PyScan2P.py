@@ -1,3 +1,6 @@
+# Programmed by Armin Bahl, in July 2022
+# www.neurobiology-konstanz.com/bahl
+
 if __name__ == "__main__":
 
     from shared import Shared
@@ -489,7 +492,7 @@ if __name__ == "__main__":
 
             # Update the voltage range display for the scan pattern
             width = self.shared.galvo_scanning_resolutionx.value + self.shared.galvo_scanning_turnaround_pixels.value * 2
-            height = self.shared.galvo_scanning_resolutionx.value
+            height = self.shared.galvo_scanning_resolutiony.value
             min_max_Vx = width / 2 * self.shared.galvo_scanning_pixel_galvo_factor.value
             min_max_Vy = height / 2 * self.shared.galvo_scanning_pixel_galvo_factor.value
             self.label_voltage_range.setText(f"Galvo range:\n X:  ±{min_max_Vx:.2f} V\n Y:  ±{min_max_Vy:.2f} V")
@@ -731,7 +734,7 @@ if __name__ == "__main__":
                 image_mean = self.shared.image_green_LP_mean.value
                 time_per_frame = self.shared.current_time_per_frame.value
 
-                info = f"Time per frame: {time_per_frame:.1f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
+                info = f"Time per frame: {time_per_frame:.2f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
                 self.label_info_raw_signal_range_green_channel.setText(info)
 
             ####################
@@ -759,7 +762,7 @@ if __name__ == "__main__":
                 image_mean = self.shared.image_red_LP_mean.value
                 time_per_frame = self.shared.current_time_per_frame.value
 
-                info = f"Time per frame: {time_per_frame:.1f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
+                info = f"Time per frame: {time_per_frame:.2f} s;\tMinimum: {image_min:.1f}, Maximum: {image_max:.1f}, Mean: {image_mean:.1f}"
                 self.label_info_raw_signal_range_red_channel.setText(info)
 
             ### Update dual image
