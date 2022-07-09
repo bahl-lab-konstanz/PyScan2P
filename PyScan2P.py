@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
             # scale all the widgets (4k, windows scaling problem)
             fontscale = 1#1  # 2.2
-            sizescale = 1.2#2.2
+            sizescale = 1.1#2.2
 
             # Scale the application window
             size = self.size()

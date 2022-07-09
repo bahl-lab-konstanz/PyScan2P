@@ -6,9 +6,28 @@ from modules.maitai_module import MaiTaiModule
 from modules.lambda_half_plate_module import LambdaHalfPlateModule
 from modules.uniblitz_shutter_status_module import UniblitzShutterStatusModule
 from modules.experiment_flow_control_module import ExperimentFlowControlModule
+import socket
 
 class Shared():
     def __init__(self):
+
+        if socket.gethostname() == "DESKTOP-D5NK0MQ":
+            self.dev_shutter_control = "dev1"
+            self.dev_name_scanning_control = "dev1"
+            self.dev_name_pmt_control = "dev3"
+            self.com_port_laser = "COM3"
+            self.baudrate_laser = 9600
+            self.lambda_half_plate_serial = b"27600313"
+        elif socket.gethostname() == "DESKTOP-9BQKQP5":
+            self.dev_shutter_control = "dev1"
+            self.dev_name_scanning_control = "dev1"
+            self.dev_name_pmt_control = f"dev2"
+            self.com_port_laser = "COM5"
+            self.baudrate_laser = 115200
+            self.lambda_half_plate_serial = b"27005044"
+        else:
+            return
+
         self.image_green_LP = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
         self.image_red_LP = sharedctypes.RawArray(ctypes.c_uint16, 2048 * 2048)
 

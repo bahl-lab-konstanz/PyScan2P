@@ -22,9 +22,8 @@ class LambdaHalfPlateModule(Process):
             device = ftd2xx.getDeviceInfoDetail(i)
 
             # On either of the computers
-            if device["serial"] == b"27005044" or device["serial"] == b"27600313":
+            if device["serial"] == self.shared.lambda_half_plate_serial:
                 self.ftdi = ftd2xx.open(dev=device["index"])
-
 
         if self.ftdi == None:
             print("No Motion controller for lambda half plate...")

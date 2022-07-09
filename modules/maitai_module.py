@@ -11,16 +11,7 @@ class MaiTaiModule(Process):
 
     def run(self):
 
-        if socket.gethostname() == "DESKTOP-D5NK0MQ":
-            com_port = "COM3"
-            baudrate = 9600
-        elif socket.gethostname() == "DESKTOP-9BQKQP5":
-            com_port = "COM5"
-            baudrate = 115200
-        else:
-            return
-
-        ser = serial.Serial(baudrate=baudrate, port=com_port, bytesize=8, stopbits=1, rtscts=0, timeout=1, xonxoff=1, parity='N')  # open serial port
+        ser = serial.Serial(baudrate=self.shared.baudrate_laser, port=self.shared.com_port_laser, bytesize=8, stopbits=1, rtscts=0, timeout=1, xonxoff=1, parity='N')  # open serial port
 
         queries = [#["CONTrol:PHAse?", "Phase"],
                    #["CONTrol:MLENable?", "Modelock enable"],
@@ -127,8 +118,7 @@ class MaiTaiModule(Process):
                     self.shared.prechirp_motor_changed.value = 0
 
             except Exception as e:
-                print(e)
-                #pass  # while the laser changes wavlength no querries possible
+                pass  # while the laser changes wavlength no querries possible
 
             time.sleep(0.05)
 

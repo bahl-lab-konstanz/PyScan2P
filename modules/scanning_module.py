@@ -23,16 +23,6 @@ class ScanningModule(Process):
 
         self.shared = shared
 
-        print(socket.gethostname())
-        if socket.gethostname() == "DESKTOP-D5NK0MQ":
-            self.dev_name_scanning_control = "dev1"
-            self.dev_name_pmt_control = "dev3"
-        elif socket.gethostname() == "DESKTOP-9BQKQP5":
-            self.dev_name_scanning_control = "dev1"
-            self.dev_name_pmt_control = f"dev2"
-        else:
-            return
-
         self.expected_pmt_signal_range = 5
 
     def start_scanning(self):
@@ -110,7 +100,7 @@ class ScanningModule(Process):
         # Start Pmt input when the scanner starts
         DAQmxCfgSampClkTiming(self.pmt_input_handle, "", float64(self.input_rate), DAQmx_Val_Rising, DAQmx_Val_ContSamps,
                               int(len(self.x)*self.bin_size))
-        DAQmxSetAIDataXferMech(self.pmt_input_handle, f"{self.dev_name_scanning_control}/ai0:1", DAQmx_Val_DMA)  # imporoves buffering problems
+        DAQmxSetAIDataXferMech(self.pmt_input_handle, f"{self.shared.dev_name_scanning_control}/ai0:1", DAQmx_Val_DMA)  # imporoves buffering problems
         DAQmxCfgDigEdgeStartTrig(self.pmt_input_handle, "ao/StartTrigger", DAQmx_Val_Rising)
 
         # Start the scanning and the synchronized pmt acquisition
@@ -210,16 +200,16 @@ class ScanningModule(Process):
         DAQmxCreateTask("AO", byref(self.galvo_output_handle))
         DAQmxCreateTask("AI", byref(self.pmt_input_handle))
 
-        DAQmxCreateDOChan(self.shutter_handle, f"{self.dev_name_scanning_control}/port0/line0", "", DAQmx_Val_ChanForAllLines)
-        DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.dev_name_scanning_control}/ao0:1", "AO",
+        DAQmxCreateDOChan(self.shutter_handle, f"{self.shared.dev_name_scanning_control}/port0/line0", "", DAQmx_Val_ChanForAllLines)
+        DAQmxCreateAOVoltageChan(self.galvo_output_handle, f"{self.shared.dev_name_scanning_control}/ao0:1", "AO",
                                  float64(-5.0),
                                  float64(5.0), DAQmx_Val_Volts, "")
-        DAQmxCreateAIVoltageChan(self.pmt_input_handle, f"{self.dev_name_scanning_control}/ai0:1", "AI", DAQmx_Val_Cfg_Default,
+        DAQmxCreateAIVoltageChan(self.pmt_input_handle, f"{self.shared.dev_name_scanning_control}/ai0:1", "AI", DAQmx_Val_Cfg_Default,
                                  float64(-self.expected_pmt_signal_range),
                                  float64(self.expected_pmt_signal_range), DAQmx_Val_Volts, None)
 
-        DAQmxCreateAOVoltageChan(self.pmt_gain_green_control_handle, f"{self.dev_name_pmt_control}/ao0", "AO", 0, 5.0, DAQmx_Val_Volts, "")
-        DAQmxCreateAOVoltageChan(self.pmt_gain_red_control_handle, f"{self.dev_name_pmt_control}/ao1", "AO", 0, 5.0, DAQmx_Val_Volts, "")
+        DAQmxCreateAOVoltageChan(self.pmt_gain_green_control_handle, f"{self.shared.dev_name_pmt_control}/ao0", "AO", 0, 5.0, DAQmx_Val_Volts, "")
+        DAQmxCreateAOVoltageChan(self.pmt_gain_red_control_handle, f"{self.shared.dev_name_pmt_control}/ao1", "AO", 0, 5.0, DAQmx_Val_Volts, "")
 
         # Set the galvos to zero, turn off the PMTs, and close the shutter
         self.stop_scanning()
@@ -315,7 +305,7 @@ class ScanningModule(Process):
                 self.shared.experiment_flow_control_currently_storing_imaging_data.value = 1
 
                 root_path = Path(bytearray(self.shared.experiment_flow_control_root_path[:self.shared.experiment_flow_control_root_path_l.value]).decode())
-                print("Storing...")
+
                 if self.shared.experiment_configuration_store_green_channel.value == 1 or \
                         self.shared.experiment_configuration_store_red_channel.value == 1:
 
@@ -336,5 +326,5 @@ class ScanningModule(Process):
 
                 self.shared.experiment_flow_control_currently_storing_imaging_data.value = 0
                 self.shared.experiment_flow_control_store_imaging_data_completed.value = 1
-                print("done")
+
             time.sleep(0.01)

@@ -16,9 +16,7 @@ class UniblitzShutterStatusModule(Process):
         self.shutter_status_handle = TaskHandle()
 
         DAQmxCreateTask("Shutter status", byref(self.shutter_status_handle))
-
-        DAQmxCreateDIChan(self.shutter_status_handle, "Dev1/port0/line1", "", DAQmx_Val_ChanForAllLines)
-
+        DAQmxCreateDIChan(self.shutter_status_handle, f"{self.shared.dev_shutter_control}/port0/line1", "", DAQmx_Val_ChanForAllLines)
         DAQmxStartTask(self.shutter_status_handle)
 
         read = int32()

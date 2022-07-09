@@ -31,9 +31,9 @@
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -58,18 +58,18 @@
      <colorrole role="Base">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -96,9 +96,9 @@
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -123,18 +123,18 @@
      <colorrole role="Base">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -161,9 +161,9 @@
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -188,18 +188,18 @@
      <colorrole role="Base">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>20</red>
-        <green>20</green>
-        <blue>20</blue>
+        <red>10</red>
+        <green>10</green>
+        <blue>10</blue>
        </color>
       </brush>
      </colorrole>
@@ -221,13 +221,107 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>PyZebra2P - Python Zebrafish Two Photon Scanning Framework</string>
+   <string>PyScan2P: A minimalist two-photon scanning framework </string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: white; background-color: rgb(20, 20, 20);</string>
+   <string notr="true">QDialog {
+	background-color: rgb(10, 10, 10);
+}
+
+QLabel {
+	color: white;
+}
+
+QPushButton {
+	background-color: rgb(180, 180, 180); 
+	color:black; 
+	border-style: outset; 
+	border-width: 2px;
+	border-color: rgb(150, 150, 150);
+}
+
+QComboBox {
+	background-color: rgb(100, 100, 100); 
+	color:white; 
+	border-style: outset; 
+	border-width: 1px; 
+	border-color: rgb(50, 50, 50);
+}
+
+QGroupBox {
+    color: white;
+	background-color: rgb(20, 20, 20);
+	border: 2px solid rgb(30, 30, 30);
+	border-radius: 5px;
+	margin-top: 1ex; 
+}
+
+QDoubleSpinBox {
+	background-color: rgb(100, 100, 100); 
+	color:white; 
+	border-style: outset; 
+	border-width: 1px; 
+	border-color: rgb(50, 50, 50);
+}
+
+QSpinBox {
+	background-color: rgb(100, 100, 100); 
+	color:white; 
+	border-style: outset; 
+	border-width: 1px; 
+	border-color: rgb(50, 50, 50);
+}
+
+QLineEdit {
+	background-color: rgb(100, 100, 100); 
+	color:white; 
+	border-style: outset; 
+	border-width: 1px; 
+	border-color: rgb(50, 50, 50);
+}
+
+QTableWidget {
+	background: rgb(30, 30, 30);
+	color: white;
+}
+
+QCheckBox {
+	color:white;
+}
+
+QTabWidget::pane{
+	border: 1px solid #C4C4C3;
+}
+QTabBar::tab {
+    background: rgb(20, 20, 20);
+    border: 1px solid #C4C4C3;
+    border-bottom-color: #C2C7CB;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 8ex;
+    padding: 3px;
+    color: white;
+}
+
+QTabBar::tab:selected {
+   background: rgb(100, 100, 100);
+}
+
+QTabBar::tab:hover {
+   background: rgb(60, 60, 60);
+   border: 1px solid #C4C4C3;
+}
+
+QPlainTextEdit{
+	background-color: rgb(100, 100, 100); 
+	color:white; 
+	border-style: outset; 
+	border-width: 1px; 
+	border-color: rgb(50, 50, 50);
+}</string>
   </property>
   <widget class="QTabWidget" name="tabWidget_display_data">
    <property name="geometry">
@@ -244,24 +338,9 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">QTabBar::tab {
-    background: rgb(20, 20, 20);
-    border: 1px solid #C4C4C3;
-    border-bottom-color: #C2C7CB; /* same as the pane color */
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    min-width: 8ex;
-    padding: 3px;
-}
-
-QTabBar::tab:selected {
-    background: rgb(100, 100, 100);
-}
-
-QTabBar::tab:hover {
-   background: rgb(60, 60, 60);
-
-}</string>
+    <string notr="true">#tab_2{background-color: rgb(20, 20, 20);}
+#tab_3{background-color: rgb(20, 20, 20);}
+#tab_18{background-color: rgb(20, 20, 20);}</string>
    </property>
    <property name="tabPosition">
     <enum>QTabWidget::North</enum>
@@ -270,7 +349,7 @@ QTabBar::tab:hover {
     <enum>QTabWidget::Rounded</enum>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="elideMode">
     <enum>Qt::ElideRight</enum>
@@ -567,27 +646,12 @@ QTabBar::tab:hover {
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">QTabBar::tab {
-    background: rgb(20, 20, 20);
-    border: 1px solid #C4C4C3;
-    border-bottom-color: #C2C7CB; /* same as the pane color */
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    min-width: 8ex;
-    padding: 3px;
-}
-
-QTabBar::tab:selected {
-    background: rgb(100, 100, 100);
-}
-
-QTabBar::tab:hover {
-   background: rgb(60, 60, 60);
-
-}</string>
+    <string notr="true">#tab_6{background-color: rgb(20, 20, 20);}
+#tab_4{background-color: rgb(20, 20, 20);}
+#tab_9{background-color: rgb(20, 20, 20);}</string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab_6">
     <attribute name="title">
@@ -598,7 +662,7 @@ QTabBar::tab:hover {
       <rect>
        <x>190</x>
        <y>10</y>
-       <width>71</width>
+       <width>81</width>
        <height>23</height>
       </rect>
      </property>
@@ -621,7 +685,7 @@ QTabBar::tab:hover {
       <rect>
        <x>190</x>
        <y>40</y>
-       <width>71</width>
+       <width>81</width>
        <height>23</height>
       </rect>
      </property>
@@ -644,7 +708,7 @@ QTabBar::tab:hover {
       <rect>
        <x>110</x>
        <y>10</y>
-       <width>42</width>
+       <width>51</width>
        <height>21</height>
       </rect>
      </property>
@@ -654,7 +718,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>690</number>
@@ -692,7 +756,7 @@ QTabBar::tab:hover {
       <rect>
        <x>190</x>
        <y>70</y>
-       <width>71</width>
+       <width>81</width>
        <height>23</height>
       </rect>
      </property>
@@ -750,7 +814,7 @@ QTabBar::tab:hover {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>320</y>
+       <y>360</y>
        <width>121</width>
        <height>21</height>
       </rect>
@@ -768,7 +832,7 @@ QTabBar::tab:hover {
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>320</y>
+       <y>360</y>
        <width>51</width>
        <height>22</height>
       </rect>
@@ -779,7 +843,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="decimals">
       <number>1</number>
@@ -832,8 +896,8 @@ QTabBar::tab:hover {
       <rect>
        <x>10</x>
        <y>170</y>
-       <width>251</width>
-       <height>141</height>
+       <width>261</width>
+       <height>181</height>
       </rect>
      </property>
      <property name="font">
@@ -847,7 +911,7 @@ QTabBar::tab:hover {
       <rect>
        <x>110</x>
        <y>70</y>
-       <width>42</width>
+       <width>51</width>
        <height>22</height>
       </rect>
      </property>
@@ -857,7 +921,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="maximum">
       <double>100.000000000000000</double>
@@ -870,7 +934,7 @@ QTabBar::tab:hover {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>350</y>
+       <y>390</y>
        <width>191</width>
        <height>21</height>
       </rect>
@@ -888,7 +952,7 @@ QTabBar::tab:hover {
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>350</y>
+       <y>390</y>
        <width>51</width>
        <height>21</height>
       </rect>
@@ -1193,7 +1257,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>0</number>
@@ -1217,7 +1281,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>-9999999</number>
@@ -1244,7 +1308,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>-9999999</number>
@@ -1271,7 +1335,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>-99999</number>
@@ -1298,7 +1362,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>-99999</number>
@@ -1578,7 +1642,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1601,7 +1665,7 @@ QTabBar::tab:hover {
       <rect>
        <x>210</x>
        <y>260</y>
-       <width>21</width>
+       <width>41</width>
        <height>16</height>
       </rect>
      </property>
@@ -1828,7 +1892,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="decimals">
       <number>2</number>
@@ -1851,7 +1915,7 @@ QTabBar::tab:hover {
       <rect>
        <x>120</x>
        <y>260</y>
-       <width>31</width>
+       <width>41</width>
        <height>16</height>
       </rect>
      </property>
@@ -2104,7 +2168,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="editable">
       <bool>false</bool>
@@ -2386,7 +2450,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="decimals">
       <number>1</number>
@@ -2419,7 +2483,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="decimals">
       <number>4</number>
@@ -2886,7 +2950,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>2</number>
@@ -2952,7 +3016,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>2</number>
@@ -2965,7 +3029,7 @@ QTabBar::tab:hover {
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>100</y>
        <width>101</width>
        <height>41</height>
       </rect>
@@ -3193,7 +3257,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>1</number>
@@ -3212,7 +3276,7 @@ QTabBar::tab:hover {
       <rect>
        <x>150</x>
        <y>550</y>
-       <width>111</width>
+       <width>131</width>
        <height>22</height>
       </rect>
      </property>
@@ -3304,7 +3368,7 @@ QTabBar::tab:hover {
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(200, 200, 200); color:black; border-style: outset;  border-width: 2px;  border-color: rgb(100, 100, 100);</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>···</string>
@@ -3325,7 +3389,7 @@ QTabBar::tab:hover {
        </font>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+       <string notr="true"/>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -3434,7 +3498,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_fish_configuration_comments">
@@ -3452,7 +3516,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
     </widget>
     <widget class="QLabel" name="label_7">
@@ -3506,7 +3570,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="maximum">
       <number>9999</number>
@@ -3527,7 +3591,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
     </widget>
     <widget class="QLabel" name="label_91">
@@ -3563,7 +3627,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
      <property name="minimum">
       <number>1</number>
@@ -3608,7 +3672,7 @@ QTabBar::tab:hover {
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(100, 100, 100); color:white; border-style: outset; border-width: 1px;  border-color: rgb(50, 50, 50);</string>
+      <string notr="true"/>
      </property>
     </widget>
    </widget>
@@ -3866,7 +3930,7 @@ QTabBar::tab:hover {
   <customwidget>
    <class>PlotWidget</class>
    <extends>QWidget</extends>
-   <header>pyqtgraph.h</header>
+   <header>pyqtgraph</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -22,7 +22,7 @@ class ExperimentFlowControlModule(Process):
                 root_path.mkdir(exist_ok=True)
 
                 folder_name = time.strftime("%Y-%m-%d_%H-%M-%S")
-                folder_name += f"_fish{self.shared.fish_configuration_ID.value:03d}"
+                folder_name += f"_fishID{self.shared.fish_configuration_ID.value:03d}"
 
                 suffix = bytearray(self.shared.fish_configuration_suffix[:self.shared.fish_configuration_suffix_l.value]).decode()
                 if len(suffix) > 0:
