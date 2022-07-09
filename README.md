@@ -15,3 +15,6 @@ conda config --set channel_priority strict
 
 conda install --yes -c conda-forge -v appdirs cython matplotlib numpy numpydoc pyqtgraph scikit-image scikit-learn scipy tifffile imageio-ffmpeg numba ftd2xx pyserial pyvisa  
 pip install PyDAQmx pyqt6 pyqt6-tools
+
+**Any suggestions on how to improve the framework?**:
+Visit us at our [lab website](www.neurobiology-konstanz.com/bahl).
