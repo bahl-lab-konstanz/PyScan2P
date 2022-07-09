@@ -651,7 +651,7 @@ QPlainTextEdit{
 #tab_9{background-color: rgb(20, 20, 20);}</string>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab_6">
     <attribute name="title">
@@ -2932,7 +2932,7 @@ QPlainTextEdit{
       </font>
      </property>
      <property name="text">
-      <string>Resolution</string>
+      <string>Image size</string>
      </property>
     </widget>
     <widget class="QSpinBox" name="spinBox_galvo_scanning_resolutiony">
@@ -3029,9 +3029,9 @@ QPlainTextEdit{
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
-       <width>101</width>
-       <height>41</height>
+       <y>110</y>
+       <width>121</width>
+       <height>51</height>
       </rect>
      </property>
      <property name="palette">
@@ -3240,6 +3240,9 @@ QPlainTextEdit{
      </property>
      <property name="text">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Voltage range:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
      </property>
     </widget>
     <widget class="QSpinBox" name="spinBox_raster_scanning_turn_around_pixels">
