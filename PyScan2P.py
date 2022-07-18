@@ -54,7 +54,6 @@ if __name__ == "__main__":
 
             ##########
             ### Laser tab
-
             self.spinBox_setMaiTai_wavelength.valueChanged.connect(self.spinBox_setMaiTai_wavelength_valueChanged)
             self.doubleSpinBox_prechirp_motor.valueChanged.connect(self.doubleSpinBox_prechirp_motor_valueChanged)
             self.pushButton_MaiTai_Shutter.clicked.connect(self.pushButton_MaiTai_Shutter_clicked)
@@ -62,8 +61,6 @@ if __name__ == "__main__":
             self.pushButton_MaiTai_OFF.clicked.connect(self.pushButton_MaiTai_OFF_clicked)
 
             self.doubleSpinBox_target_lambda_half_plate_orientation.valueChanged.connect(self.doubleSpinBox_target_lambda_half_plate_orientation_valueChanged)
-
-            self.laser_calibration_interpolation_function = None
 
             ##########
             ### Scanning tab

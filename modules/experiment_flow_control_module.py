@@ -121,7 +121,7 @@ class ExperimentFlowControlModule(Process):
                 self.shared.experiment_flow_control_currently_running.value = 0
 
                 # Close the laser shutter after the experiment
-                #if self.shared.current_mai_tai_info_shutter_open.value == 1:
-                #    self.shared.pushButton_MaiTai_Shutter_clicked.value = 1
+                if self.shared.current_mai_tai_info_shutter_open.value == 1:
+                    self.shared.pushButton_MaiTai_Shutter_clicked.value = 1
 
             time.sleep(0.01)

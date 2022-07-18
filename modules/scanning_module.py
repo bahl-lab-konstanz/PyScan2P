@@ -162,8 +162,8 @@ class ScanningModule(Process):
         image_green = np.zeros((self.x_pixels + self.turnaround_pixels * 2, self.y_pixels), dtype=np.float64)
         image_red = np.zeros((self.x_pixels + self.turnaround_pixels * 2, self.y_pixels), dtype=np.float64)
 
-        raw_green_data = np.roll(raw_green_data, self.shared.pmt_data_rolling_shift.value)
-        raw_red_data = np.roll(raw_red_data, self.shared.pmt_data_rolling_shift.value)
+        raw_green_data = np.roll(raw_green_data, -self.shared.pmt_data_rolling_shift.value)
+        raw_red_data = np.roll(raw_red_data, -self.shared.pmt_data_rolling_shift.value)
 
         do_binning(image_green, image_red, raw_green_data, raw_red_data,
                    self.x, self.y, self.bin_size)
