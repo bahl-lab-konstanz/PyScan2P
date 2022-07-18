@@ -715,7 +715,7 @@ if __name__ == "__main__":
                 image_green_LP.shape = (x_pixels, y_pixels)
 
                 # display
-                self.pyqtgraph_green_pmt_image_item.setImage(image_green_LP, autoLevels=False, levels=(self.shared.green_channel_slider_low.value, self.shared.green_channel_slider_high.value))
+                self.pyqtgraph_green_pmt_image_item.setImage(np.flipud(image_green_LP), autoLevels=False, levels=(self.shared.green_channel_slider_low.value, self.shared.green_channel_slider_high.value))
 
                 # Update the histogram
                 hist, bin_edges = np.histogram(image_green_LP.flatten(), bins=1000, range=(10000, 14096), density=True)
@@ -743,7 +743,7 @@ if __name__ == "__main__":
                 image_red_LP.shape = (x_pixels, y_pixels)
 
                 # display
-                self.pyqtgraph_red_pmt_image_item.setImage(image_red_LP, autoLevels=False, levels=(self.shared.red_channel_slider_low.value, self.shared.red_channel_slider_high.value))
+                self.pyqtgraph_red_pmt_image_item.setImage(np.flipud(image_red_LP), autoLevels=False, levels=(self.shared.red_channel_slider_low.value, self.shared.red_channel_slider_high.value))
 
                 # Update the histogram
                 hist, bin_edges = np.histogram(image_red_LP.flatten(), bins=1000, range=(10000, 14096), density=True)
@@ -782,7 +782,7 @@ if __name__ == "__main__":
                 image_dual_LP[:, :, 2] = (image_dual_LP[:, :, 2] - self.shared.red_channel_slider_low.value) / (
                                                             self.shared.red_channel_slider_high.value - self.shared.red_channel_slider_low.value) * 4096
                 # display
-                self.pyqtgraph_dual_pmt_image_item.setImage(image_dual_LP, autoLevels=False, levels=(0, 4096))
+                self.pyqtgraph_dual_pmt_image_item.setImage(np.flipud(image_dual_LP), autoLevels=False, levels=(0, 4096))
 
         def closeEvent(self, event):
 
