@@ -1,0 +1,25 @@
+name: pyscan2p
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - appdirs
+  - cython
+  - matplotlib
+  - numpy
+  - numpydoc
+  - pyqtgraph
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - tifffile
+  - imageio-ffmpeg
+  - numba
+  - ftd2xx
+  - pyserial
+  - pyvisa
+  - pip
+  - pip:
+    - PyDAQmx
+    - pyqt6
+    - pyqt6-tools
