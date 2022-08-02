@@ -11,7 +11,7 @@ if __name__ == "__main__":
     shared = Shared()
     shared.start_threads()
 
-    from PyQt6 import QtCore, uic, QtWidgets
+    from PyQt5 import QtCore, uic, QtWidgets
 
     import os
     import numpy as np
@@ -82,8 +82,8 @@ if __name__ == "__main__":
 
             self.comboBox_dwelltime_raster_scanning.setCurrentIndex(3)
 
-            self.doubleSpinBox_scanning_configuration_pmt_gain_green.valueChanged.connect(self.doubleSpinBox_scanning_configuration_pmt_gain_green_valueChanged)
-            self.doubleSpinBox_scanning_configuration_pmt_gain_red.valueChanged.connect(self.doubleSpinBox_scanning_configuration_pmt_gain_red_valueChanged)
+            # self.doubleSpinBox_scanning_configuration_pmt_gain_green.valueChanged.connect(self.doubleSpinBox_scanning_configuration_pmt_gain_green_valueChanged)
+            # self.doubleSpinBox_scanning_configuration_pmt_gain_red.valueChanged.connect(self.doubleSpinBox_scanning_configuration_pmt_gain_red_valueChanged)
 
             self.checkBox_green_pmt_turn_on_while_scanning.clicked.connect(self.checkBox_green_pmt_turn_on_while_scanning_clicked)
             self.checkBox_red_pmt_turn_on_while_scanning.clicked.connect(self.checkBox_red_pmt_turn_on_while_scanning_clicked)
@@ -220,8 +220,8 @@ if __name__ == "__main__":
                  self.shared.galvo_scanning_turnaround_pixels.value,
                  self.shared.galvo_scanning_pixel_galvo_factor.value,
                  self.shared.pmt_data_rolling_shift.value,
-                 self.shared.scanning_configuration_pmt_gain_green.value,
-                 self.shared.scanning_configuration_pmt_gain_red.value,
+                 # self.shared.scanning_configuration_pmt_gain_green.value,
+                 # self.shared.scanning_configuration_pmt_gain_red.value,
                  self.shared.scanning_configuration_display_lowpass_filter_constant.value,
                  self.shared.green_channel_slider_low.value,
                  self.shared.green_channel_slider_high.value,
@@ -260,8 +260,8 @@ if __name__ == "__main__":
                  self.shared.galvo_scanning_turnaround_pixels.value,
                  self.shared.galvo_scanning_pixel_galvo_factor.value,
                  self.shared.pmt_data_rolling_shift.value,
-                 self.shared.scanning_configuration_pmt_gain_green.value,
-                 self.shared.scanning_configuration_pmt_gain_red.value,
+                 # self.shared.scanning_configuration_pmt_gain_green.value,
+                 # self.shared.scanning_configuration_pmt_gain_red.value,
                  self.shared.scanning_configuration_display_lowpass_filter_constant.value,
                  self.shared.green_channel_slider_low.value,
                  self.shared.green_channel_slider_high.value,
@@ -407,8 +407,8 @@ if __name__ == "__main__":
             except:
                 pass
 
-            self.doubleSpinBox_scanning_configuration_pmt_gain_green.setValue(self.shared.scanning_configuration_pmt_gain_green.value)
-            self.doubleSpinBox_scanning_configuration_pmt_gain_red.setValue(self.shared.scanning_configuration_pmt_gain_red.value)
+            # self.doubleSpinBox_scanning_configuration_pmt_gain_green.setValue(self.shared.scanning_configuration_pmt_gain_green.value)
+            # self.doubleSpinBox_scanning_configuration_pmt_gain_red.setValue(self.shared.scanning_configuration_pmt_gain_red.value)
 
             self.checkBox_green_pmt_turn_on_while_scanning.setChecked(self.shared.green_pmt_turn_on_while_scanning.value == 1)
             self.checkBox_red_pmt_turn_on_while_scanning.setChecked(self.shared.red_pmt_turn_on_while_scanning.value == 1)
@@ -469,21 +469,21 @@ if __name__ == "__main__":
 
             self.shared.start_scanning_requested.value = 1
 
-        def doubleSpinBox_scanning_configuration_pmt_gain_green_valueChanged(self):
-            self.shared.scanning_configuration_pmt_gain_green.value = self.doubleSpinBox_scanning_configuration_pmt_gain_green.value()
-            self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
-
-        def doubleSpinBox_scanning_configuration_pmt_gain_red_valueChanged(self):
-            self.shared.scanning_configuration_pmt_gain_red.value = self.doubleSpinBox_scanning_configuration_pmt_gain_red.value()
-            self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
+        # def doubleSpinBox_scanning_configuration_pmt_gain_green_valueChanged(self):
+        #     self.shared.scanning_configuration_pmt_gain_green.value = self.doubleSpinBox_scanning_configuration_pmt_gain_green.value()
+        #     self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
+        #
+        # def doubleSpinBox_scanning_configuration_pmt_gain_red_valueChanged(self):
+        #     self.shared.scanning_configuration_pmt_gain_red.value = self.doubleSpinBox_scanning_configuration_pmt_gain_red.value()
+        #     self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
 
         def checkBox_green_pmt_turn_on_while_scanning_clicked(self):
             self.shared.green_pmt_turn_on_while_scanning.value = 1 if self.checkBox_green_pmt_turn_on_while_scanning.isChecked() else 0
-            self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
+            # self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 1
 
         def checkBox_red_pmt_turn_on_while_scanning_clicked(self):
             self.shared.red_pmt_turn_on_while_scanning.value = 1 if self.checkBox_red_pmt_turn_on_while_scanning.isChecked() else 0
-            self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
+            # self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 1
 
         def update_gui(self):
 
@@ -512,7 +512,7 @@ if __name__ == "__main__":
 
             #########
 
-            if self.shared.scanning_configuration_pmt_gain_green.value > 0 and self.shared.green_pmt_turn_on_while_scanning.value == 1 and self.shared.currently_scanning.value == 1:
+            if self.shared.green_pmt_turn_on_while_scanning.value == 1 and self.shared.currently_scanning.value == 1:
                 green_label_text = f"Green PMT: ON"
                 green_label_color = "yellow"
                 green_label_border = "orange"
@@ -521,7 +521,7 @@ if __name__ == "__main__":
                 green_label_color = "rgb(100, 100, 100)"
                 green_label_border = "rgb(50, 50, 50)"
                 
-            if self.shared.scanning_configuration_pmt_gain_red.value > 0 and self.shared.red_pmt_turn_on_while_scanning.value == 1 and self.shared.currently_scanning.value == 1:
+            if self.shared.red_pmt_turn_on_while_scanning.value == 1 and self.shared.currently_scanning.value == 1:
                 red_label_text = f"red PMT: ON"
                 red_label_color = "yellow"
                 red_label_border = "orange"

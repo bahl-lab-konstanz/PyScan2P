@@ -55,8 +55,8 @@ class ExperimentFlowControlModule(Process):
                 infos["galvo_scanning_AOrate"] = self.shared.galvo_scanning_AOrate.value
                 infos["galvo_scanning_pixel_galvo_factor"] = self.shared.galvo_scanning_pixel_galvo_factor.value
                 infos["pmt_data_rolling_shift"] = self.shared.pmt_data_rolling_shift.value
-                infos["scanning_configuration_pmt_gain_green"] = self.shared.scanning_configuration_pmt_gain_green.value
-                infos["scanning_configuration_pmt_gain_red"] = self.shared.scanning_configuration_pmt_gain_red.value
+                #infos["scanning_configuration_pmt_gain_green"] = self.shared.scanning_configuration_pmt_gain_green.value
+                #infos["scanning_configuration_pmt_gain_red"] = self.shared.scanning_configuration_pmt_gain_red.value
                 infos["scanning_configuration_pmt_green_turned_on"] = self.shared.green_pmt_turn_on_while_scanning.value
                 infos["scanning_configuration_pmt_red_turned_on"] = self.shared.red_pmt_turn_on_while_scanning.value
                 infos["galvo_scanning_resolutionx"] = self.shared.galvo_scanning_resolutionx.value

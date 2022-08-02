@@ -25,7 +25,7 @@ class UniblitzShutterStatusModule(Process):
 
         while self.shared.running.value == 1:
 
-            DAQmxReadDigitalU8(self.shutter_status_handle, int(1), 10.0, DAQmx_Val_GroupByChannel, shutter_status_data,
+            DAQmxReadDigitalU32(self.shutter_status_handle, int(1), 10.0, DAQmx_Val_GroupByChannel, shutter_status_data.astype('uint32'),
                                int(1), byref(read), None)
 
             if shutter_status_data[0] & 2 == 2:  # if it is high, the shutter is open

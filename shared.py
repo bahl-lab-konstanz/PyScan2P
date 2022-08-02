@@ -2,8 +2,8 @@ from multiprocessing import Value, sharedctypes
 import ctypes
 
 from modules.scanning_module import ScanningModule
-from modules.maitai_module import MaiTaiModule
-from modules.lambda_half_plate_module import LambdaHalfPlateModule
+#from modules.maitai_module import MaiTaiModule
+#from modules.lambda_half_plate_module import LambdaHalfPlateModule
 from modules.uniblitz_shutter_status_module import UniblitzShutterStatusModule
 from modules.experiment_flow_control_module import ExperimentFlowControlModule
 import socket
@@ -24,6 +24,13 @@ class Shared():
             self.dev_name_pmt_control = f"dev2"
             self.com_port_laser = "COM5"
             self.baudrate_laser = 115200
+            self.lambda_half_plate_serial = b"27005044"
+        elif socket.gethostname() == "DESKTOP-KATJA":
+            self.dev_shutter_control = "dev1"
+            self.dev_name_scanning_control = "dev1"
+            self.dev_name_pmt_control = f"dev1"
+            self.com_port_laser = "COM3"
+            self.baudrate_laser = 9600
             self.lambda_half_plate_serial = b"27005044"
         else:
             return
@@ -130,20 +137,20 @@ class Shared():
         self.scale_red_channel = Value('i', 20000)
         self.min_red_channel = Value('i', 10000)
 
-        # NI pci 6115 specific 10 Mhz, pci 6110 has 5mz,  6374 3.571 Mhz
-        self.galvo_scanning_AIrate = Value('i', 3571000)
-        self.galvo_scanning_AOrate = Value('i', 500000)
-        self.galvo_scanning_AOrate_raster_scanning = Value('i', 500000)
-        self.galvo_scanning_AOrate_regional_scanning = Value('i', 500000)
+        # NI pci 6115 specific 10 Mhz, pci 6110 has 5mz,  6374 3.571 Mhz, 6363 BNC 1Mhz
+        self.galvo_scanning_AIrate = Value('i', 1000000)
+        self.galvo_scanning_AOrate = Value('i', 400000)
+        self.galvo_scanning_AOrate_raster_scanning = Value('i', 400000)
+        self.galvo_scanning_AOrate_regional_scanning = Value('i', 400000)
         self.galvo_scanning_resolutionx = Value('i', 800)
         self.galvo_scanning_resolutiony = Value('i', 800)
         self.galvo_scanning_turnaround_pixels = Value('i', 30)
         self.galvo_scanning_pixel_galvo_factor = Value('d', 0.005)
 
-        self.scanning_configuration_pmt_gain_green_update_requested =  Value('b', 0)
-        self.scanning_configuration_pmt_gain_green = Value('d', 0)
-        self.scanning_configuration_pmt_gain_red_update_requested = Value('b', 0)
-        self.scanning_configuration_pmt_gain_red = Value('d', 0)
+        # self.scanning_configuration_pmt_gain_green_update_requested =  Value('b', 0)
+        # self.scanning_configuration_pmt_gain_green = Value('d', 0)
+        # self.scanning_configuration_pmt_gain_red_update_requested = Value('b', 0)
+        # self.scanning_configuration_pmt_gain_red = Value('d', 0)
         self.green_pmt_turn_on_while_scanning = Value('b', 0)
         self.red_pmt_turn_on_while_scanning = Value('b', 0)
 
@@ -167,7 +174,7 @@ class Shared():
     def start_threads(self):
 
         ExperimentFlowControlModule(self).start()
-        MaiTaiModule(self).start()
-        LambdaHalfPlateModule(self).start()
+        #MaiTaiModule(self).start()
+        #LambdaHalfPlateModule(self).start()
         UniblitzShutterStatusModule(self).start()
         ScanningModule(self).start()

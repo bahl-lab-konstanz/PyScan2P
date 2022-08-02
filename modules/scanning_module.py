@@ -87,9 +87,9 @@ class ScanningModule(Process):
         self.get_images(self.pmt_buffer_data[:len(self.x) * self.bin_size],
                         self.pmt_buffer_data[len(self.x) * self.bin_size:])
 
-        # Turn on the PMTs
-        self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
-                           self.shared.scanning_configuration_pmt_gain_red.value)
+        # # Turn on the PMTs
+        # self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
+        #                    self.shared.scanning_configuration_pmt_gain_red.value)
 
         # Galvo output
         DAQmxCfgSampClkTiming(self.galvo_output_handle, "", float64(self.output_rate), DAQmx_Val_Rising,
@@ -100,7 +100,7 @@ class ScanningModule(Process):
         # Start Pmt input when the scanner starts
         DAQmxCfgSampClkTiming(self.pmt_input_handle, "", float64(self.input_rate), DAQmx_Val_Rising, DAQmx_Val_ContSamps,
                               int(len(self.x)*self.bin_size))
-        DAQmxSetAIDataXferMech(self.pmt_input_handle, f"{self.shared.dev_name_scanning_control}/ai0:1", DAQmx_Val_DMA)  # imporoves buffering problems
+        DAQmxSetAIDataXferMech(self.pmt_input_handle, f"{self.shared.dev_name_scanning_control}/ai0:1", DAQmx_Val_USBbulk)  # imporoves buffering problems
         DAQmxCfgDigEdgeStartTrig(self.pmt_input_handle, "ao/StartTrigger", DAQmx_Val_Rising)
 
         # Start the scanning and the synchronized pmt acquisition
@@ -109,33 +109,31 @@ class ScanningModule(Process):
 
         # Open the shutter after the scanner starts
         data = np.ones(1).astype(np.uint8)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
+        DAQmxWriteDigitalU32(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data.astype('uint32'), byref(self.written), None)
 
         self.shared.currently_scanning.value = 1
 
-    def set_pmt_gains(self, pmt_gain_green, pmt_gain_red):
-
-        # Only turn on PMT if it was selected to be on during scanning.
-        if not self.shared.green_pmt_turn_on_while_scanning.value:
-            pmt_gain_green = 0
-        if not self.shared.red_pmt_turn_on_while_scanning.value:
-            pmt_gain_red = 0
-
-        data = np.array([pmt_gain_green], dtype=np.float64)
-        DAQmxWriteAnalogF64(self.pmt_gain_green_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
-                            data,
-                            byref(self.written), None)
-
-        data = np.array([pmt_gain_red], dtype=np.float64)
-        DAQmxWriteAnalogF64(self.pmt_gain_red_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
-                            data,
-                            byref(self.written), None)
+    # def set_pmt_gains(self, pmt_gain_green, pmt_gain_red):
+    #
+    #     # Only turn on PMT if it was selected to be on during scanning.
+    #     if not self.shared.green_pmt_turn_on_while_scanning.value:
+    #         pmt_gain_green = 0
+    #     if not self.shared.red_pmt_turn_on_while_scanning.value:
+    #         pmt_gain_red = 0
+    #
+    #     data = np.array([pmt_gain_green], dtype=np.float64)
+    #     DAQmxWriteAnalogF64(self.pmt_gain_green_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
+    #                         data, byref(self.written), None)
+    #
+    #     data = np.array([pmt_gain_red], dtype=np.float64)
+    #     DAQmxWriteAnalogF64(self.pmt_gain_red_control_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel,
+    #                         data, byref(self.written), None)
 
     def stop_scanning(self):
 
         # Close the shutter
         data = np.zeros(1, dtype=np.uint8)
-        DAQmxWriteDigitalU8(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
+        DAQmxWriteDigitalU32(self.shutter_handle, 1, 1, 10, DAQmx_Val_GroupByChannel, data.astype('uint32'), byref(self.written), None)
 
         # Stop the pmt input motion and galvos
         DAQmxStopTask(self.pmt_input_handle)
@@ -145,14 +143,17 @@ class ScanningModule(Process):
         #DAQmxClearTask(self.galvo_output_handle)
 
         # Zero the galvos
-        data = np.zeros(2, dtype=np.float64)
-        DAQmxWriteAnalogF64(self.galvo_output_handle, 1, 1, 10.0, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
+        data = np.zeros(4, dtype=np.float64)
+        try:
+            DAQmxWriteAnalogF64(self.galvo_output_handle, 2, 1, 10.0, DAQmx_Val_GroupByChannel, data, byref(self.written), None)
+        except:
+            print(data)
         DAQmxStopTask(self.galvo_output_handle)
 
         #DAQmxClearTask(self.galvo_output_handle)
 
-        # Turn off the pmts
-        self.set_pmt_gains(0, 0)
+        # # Turn off the pmts
+        # self.set_pmt_gains(0, 0)
 
         self.shared.currently_scanning.value = 0
 
@@ -189,14 +190,14 @@ class ScanningModule(Process):
 
         # Prepare all the NI channels
         self.shutter_handle = TaskHandle()
-        self.pmt_gain_green_control_handle = TaskHandle()
-        self.pmt_gain_red_control_handle = TaskHandle()
+        # self.pmt_gain_green_control_handle = TaskHandle()
+        # self.pmt_gain_red_control_handle = TaskHandle()
         self.galvo_output_handle = TaskHandle()
         self.pmt_input_handle = TaskHandle()
 
         DAQmxCreateTask("Shutter", byref(self.shutter_handle))
-        DAQmxCreateTask("Pmt gain green", byref(self.pmt_gain_green_control_handle))
-        DAQmxCreateTask("Pmt gain red", byref(self.pmt_gain_red_control_handle))
+        # DAQmxCreateTask("Pmt gain green", byref(self.pmt_gain_green_control_handle))
+        # DAQmxCreateTask("Pmt gain red", byref(self.pmt_gain_red_control_handle))
         DAQmxCreateTask("AO", byref(self.galvo_output_handle))
         DAQmxCreateTask("AI", byref(self.pmt_input_handle))
 
@@ -208,8 +209,8 @@ class ScanningModule(Process):
                                  float64(-self.expected_pmt_signal_range),
                                  float64(self.expected_pmt_signal_range), DAQmx_Val_Volts, None)
 
-        DAQmxCreateAOVoltageChan(self.pmt_gain_green_control_handle, f"{self.shared.dev_name_pmt_control}/ao0", "AO", 0, 5.0, DAQmx_Val_Volts, "")
-        DAQmxCreateAOVoltageChan(self.pmt_gain_red_control_handle, f"{self.shared.dev_name_pmt_control}/ao1", "AO", 0, 5.0, DAQmx_Val_Volts, "")
+        #DAQmxCreateAOVoltageChan(self.pmt_gain_green_control_handle, f"{self.shared.dev_name_pmt_control}/ao0", "AO", float64(0.), float64(5.0), DAQmx_Val_Volts, "")
+        #DAQmxCreateAOVoltageChan(self.pmt_gain_red_control_handle, f"{self.shared.dev_name_pmt_control}/ao1", "AO", float64(0.), float64(5.0), DAQmx_Val_Volts, "")
 
         # Set the galvos to zero, turn off the PMTs, and close the shutter
         self.stop_scanning()
@@ -230,15 +231,15 @@ class ScanningModule(Process):
                     t0 = time.time()
 
                     # Adjust the pmt gain if desired, also during the scanning
-                    if self.shared.scanning_configuration_pmt_gain_green_update_requested.value == 1:
-                        self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 0
-                        self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
-                                           self.shared.scanning_configuration_pmt_gain_red.value)
-
-                    if self.shared.scanning_configuration_pmt_gain_red_update_requested.value == 1:
-                        self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 0
-                        self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
-                                           self.shared.scanning_configuration_pmt_gain_red.value)
+                    # if self.shared.scanning_configuration_pmt_gain_green_update_requested.value == 1:
+                    #     self.shared.scanning_configuration_pmt_gain_green_update_requested.value = 0
+                    #     self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
+                    #                        self.shared.scanning_configuration_pmt_gain_red.value)
+                    #
+                    # if self.shared.scanning_configuration_pmt_gain_red_update_requested.value == 1:
+                    #     self.shared.scanning_configuration_pmt_gain_red_update_requested.value = 0
+                    #     self.set_pmt_gains(self.shared.scanning_configuration_pmt_gain_green.value,
+                    #                        self.shared.scanning_configuration_pmt_gain_red.value)
 
                     if self.shared.stop_scanning_requested.value == 1:
                         self.shared.stop_scanning_requested.value = 0
